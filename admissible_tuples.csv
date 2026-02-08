@@ -1,0 +1,9 @@
+# Q-admissible Tuples
+# Q(n) = n^47 - (n-1)^47
+# A set H is Q-admissible if for every prime p, there exists
+# r in Im(Q mod p) with r - h_i ≢ 0 (mod p) for all i.
+# Source: Table in Section 6.2
+Diameter_H,Max_k,Example_Tuple
+32,10,"0,2,6,8,12,18,20,26,30,32"
+60,14,"0,2,6,8,12,18,20,26,30,32,36,42,50,56"
+246,48,"0,2,6,8,12,...,240,242,246"

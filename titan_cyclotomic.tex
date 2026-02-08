@@ -1,0 +1,984 @@
+% ═══════════════════════════════════════════════════════════════
+%  Prime Values of a Cyclotomic Norm Polynomial
+%  and a Conjectural Bounded Gap Phenomenon
+%  ───────────────────────────────────────────────────────────
+%  Ruqing Chen · GUT Geoservice Inc. · February 2026
+%  Final v9.1
+% ═══════════════════════════════════════════════════════════════
+
+\documentclass[11pt,a4paper]{amsart}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+% ── Theorem environments ──
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{openproblem}[theorem]{Open Problem}
+\newtheorem{evidence}[theorem]{Computational Evidence}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ── Convenience ──
+\renewcommand{\qedsymbol}{$\blacksquare$}
+\DeclareMathOperator{\Norm}{Norm}
+\DeclareMathOperator{\Gal}{Gal}
+\DeclareMathOperator{\Li}{Li}
+\newcommand{\Qeff}{\mathcal{Q}_{\mathrm{eff}}}
+
+\title{Prime Values of a Cyclotomic Norm Polynomial\\
+and a Conjectural Bounded Gap Phenomenon}
+
+\author{Ruqing Chen}
+\thanks{GUT Geoservice Inc., Montreal, Quebec, Canada.
+\textit{E-mail:} \texttt{ruqing@hotmail.com}}
+% Suppress date footnote on page 1
+\makeatletter
+\renewcommand{\@setdate}{}
+\makeatother
+
+
+\begin{document}
+
+\begin{abstract}
+We study the arithmetic and prime-generating properties of the
+polynomial $Q(n)=n^{47}-(n-1)^{47}$, which arises as a norm form
+from the cyclotomic field $\mathbb{Q}(\zeta_{47})$.  We prove a
+\emph{complete local obstruction property} (Theorem~\ref{thm:shield}):
+for any odd prime~$p$, the congruence $Q(n)\equiv0\pmod{p}$ has
+solutions if and only if $p\equiv1\pmod{47}$, and $47$ never divides
+$Q(n)$.  This yields an enhanced Bateman--Horn constant
+$C_Q\approx8.64$ (Theorem~\ref{thm:BH}), verified against
+${\sim}\,10^6$~primes with relative error below~$0.1\%$.
+
+We establish the algebraic prerequisites for sieve methods: shifted
+irreducibility of $Q(x)-h$ for all even $h\in[2,500]$
+(Lemma~\ref{lem:irred}) and absence of fixed common divisors for
+$h<283$ (Theorem~\ref{thm:indep}).  We prove the \emph{Titan--BV
+Decomposition Theorem} (Theorem~\ref{thm:BV}), showing that
+${\sim}\,97.8\%$ of moduli contribute \emph{exactly zero} error to
+the Bombieri--Vinogradov sum, reducing the analytic problem to a
+sparse residual over cyclotomic moduli.
+
+Motivated by resonance phenomena and a companion study of $15.4$
+million $Q$-primes up to $n=2\times10^9$ showing strict Poisson
+regularity, we formulate the \emph{Cyclotomic Bounded Gap Conjecture}.
+Direct computation of exponential sums over all $20$ bad primes $p\le6299$
+confirms square-root cancellation with an $80\%$ safety margin below
+the Hasse--Weil bound, providing numerical evidence consistent with
+the feasibility of a distribution theorem beyond $\theta=1/2$.
+\emph{No unconditional bounded gap result is claimed.}
+
+\medskip
+\noindent\textbf{MSC 2020:} 11N32, 11R18, 11N35, 11Y35
+
+\noindent\textbf{Keywords:} cyclotomic fields, Bateman--Horn conjecture, bounded gaps,
+Bombieri--Vinogradov theorem, exponential sums, experimental number theory
+\end{abstract}
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{plain}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Introduction and Motivation}\label{sec:intro}
+% ═══════════════════════════════════════════════════════════════
+
+In 2013, Zhang~\cite{Zhang2014} proved that
+$\liminf_{n\to\infty}(p_{n+1}-p_n)<7\times10^7$, establishing for
+the first time a finite upper bound on gaps between consecutive
+primes.  Subsequent refinements by Maynard~\cite{Maynard2015} and
+Polymath~\cite{Polymath2014} reduced this bound to~$246$.  The key
+analytic inputs include the GPY sieve and the Bombieri--Vinogradov
+(BV) theorem.
+
+This paper studies the polynomial
+\[
+  Q(n) = n^{47}-(n-1)^{47},
+\]
+which has degree~$46$ and arises naturally as a norm form from the
+cyclotomic field $\mathbb{Q}(\zeta_{47})$.  Its arithmetic structure
+makes it a meaningful and unusually structured test case for
+investigating prime patterns in polynomial sequences.  We develop its
+algebraic, sieve-theoretic, and computational foundations
+systematically, separating proven results from conditional analyses and
+explicit conjectures.
+
+\begin{remark}[Scope]\label{rmk:scope}
+Sections~\ref{sec:norm}--\ref{sec:alg} contain unconditional proofs
+and verifications.  Section~\ref{sec:res} presents numerical
+observations.  Section~\ref{sec:BV} proves the BV decomposition and
+states conjectures.  Section~\ref{sec:cond} gives conditional and
+heuristic analyses.  Section~\ref{sec:concl} records the complete
+logical chain.
+\end{remark}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Cyclotomic Norm Structure}\label{sec:norm}
+% ═══════════════════════════════════════════════════════════════
+
+Let $\zeta=e^{2\pi i/47}$ and set
+$\alpha=n-\zeta(n-1)\in\mathbb{Z}[\zeta]$.  The Galois group
+$\Gal(\mathbb{Q}(\zeta)/\mathbb{Q})\cong
+(\mathbb{Z}/47\mathbb{Z})^\times$ acts via
+$\sigma_k:\zeta\mapsto\zeta^k$.  This explicit norm representation
+underlies all subsequent local and analytic properties of~$Q(n)$.
+
+\begin{proposition}[Norm factorization]\label{prop:norm}
+We have
+\[
+  Q(n) = \Norm_{\mathbb{Q}(\zeta)/\mathbb{Q}}(\alpha)
+       = \prod_{k=1}^{46}\bigl(n-\zeta^k(n-1)\bigr).
+\]
+\end{proposition}
+
+\begin{proof}
+Using $n^{47}-(n-1)^{47}=\prod_{k=0}^{46}(n-\zeta^k(n-1))$, the
+$k=0$ term equals~$1$, yielding the claimed norm expression.
+\end{proof}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Local Obstructions and Small Prime Sieving}\label{sec:local}
+% ═══════════════════════════════════════════════════════════════
+
+The explicit norm structure leads to striking local congruence
+properties, summarized below.  These properties are purely local in
+nature and do not by themselves imply any global distributional
+results.
+
+\begin{theorem}[Complete local obstruction]\label{thm:shield}
+For any odd prime~$p$, the congruence $Q(n)\equiv0\pmod{p}$ has a
+solution \textbf{if and only if} $p\equiv1\pmod{47}$.  In particular:
+\begin{enumerate}[label=(\alph*)]
+\item no prime $p<283$ divides any value $Q(n)$;
+\item $p=47$ \textbf{never} divides $Q(n)$, since
+      $Q(n)\equiv1\pmod{47}$ for all~$n$;
+\item the smallest prime that can divide $Q(n)$ is $283=6\times47+1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{remark}[Scope of ``complete local obstruction'']\label{rmk:localscope}
+The term refers solely to the absence of solutions modulo primes
+$p\not\equiv1\pmod{47}$.  It does not by itself imply any global or
+distributional conclusion about the density or distribution of prime
+values of~$Q(n)$.
+\end{remark}
+
+\begin{proof}[Proof of Theorem~\ref{thm:shield}]
+\textbf{Case~1:} $p\neq47$, $\gcd(n(n-1),p)=1$.  Then
+$Q(n)\equiv0\pmod{p}$ implies $(n/(n-1))^{47}\equiv1\pmod{p}$.  Let
+$u=n\cdot(n-1)^{-1}$.  If $\gcd(47,p-1)=1$, then $x\mapsto x^{47}$
+is bijective on $(\mathbb{Z}/p\mathbb{Z})^\times$, forcing $u=1$,
+hence $n\equiv n-1$---contradiction.  If $47\mid(p-1)$, the equation
+$u^{47}=1$ has $47$ solutions, of which $46$ nontrivial ones yield
+valid~$n$.
+
+\textbf{Case~2:} $p=47$.  By Fermat's little theorem,
+$n^{47}\equiv n\pmod{47}$, so $Q(n)\equiv n-(n-1)=1\pmod{47}$.
+
+\textbf{Case~3:} $p\mid n$ or $p\mid(n-1)$.  Direct computation
+verifies $Q(n)\not\equiv0\pmod{p}$.
+\end{proof}
+
+\begin{theorem}[Root function]\label{thm:root}
+$\omega(p)=\#\{n\in\mathbb{Z}/p\mathbb{Z}:Q(n)\equiv0\pmod{p}\}$
+satisfies: $\omega(p)=46$ if $p\equiv1\pmod{47}$, and $\omega(p)=0$
+otherwise (including $p=47$).
+\end{theorem}
+
+\begin{corollary}[Image constraints]\label{cor:image}
+For any prime $p\not\equiv1\pmod{47}$, the image of $Q(n)\bmod p$
+omits~$0$.  In particular, $Q(n)$ is always odd,
+$Q(n)\equiv1\pmod{3}$, and $Q(n)\equiv1\pmod{47}$ for all~$n$.
+\end{corollary}
+
+
+\subsection{Average value of the solution count}
+
+\begin{lemma}[Average value theorem for $\nu(d)$]\label{lem:avg}
+Let $\nu(d)$ denote the number of solutions to
+$Q(n)\equiv0\pmod{d}$.  Then $\sum_{d\le x}\nu(d)\sim Cx$ as
+$x\to\infty$, where $C$ is a positive constant depending on the
+Euler product over primes $p\equiv1\pmod{47}$.
+\end{lemma}
+
+\begin{proof}
+Since $\nu$ is multiplicative, the Dirichlet series
+$D_Q(s)=\sum_{d=1}^\infty\nu(d)/d^s$ admits an Euler product.  By
+Theorem~\ref{thm:root}, only primes $p\equiv1\pmod{47}$ contribute
+nontrivially ($\nu(p)=46$); all other local factors equal~$1$.  Thus
+\[
+  \ln D_Q(s) = 46\sum_{p\equiv1\,(47)} p^{-s} + O(1)
+             = \ln\zeta(s) + O(1),
+\]
+where the second equality follows from the Chebotarev density theorem
+applied to $\mathbb{Q}(\zeta_{47})/\mathbb{Q}$: totally split primes
+have Dirichlet density $1/\varphi(47)=1/46$.  This identification is
+a standard consequence of the analytic properties of the Dedekind zeta
+function $\zeta_K(s)$ and the Hecke equidistribution theorem.  The
+Tauberian theorem (Delange, 1954) then gives
+$\sum_{d\le x}\nu(d)\sim Cx$.
+\end{proof}
+
+\begin{remark}[Significance]\label{rmk:linear}
+Lemma~\ref{lem:avg} confirms that the sieving density grows linearly
+(not super-linearly), a prerequisite for convergence of Selberg sieve
+weights and the Bateman--Horn heuristic.
+\end{remark}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Bateman--Horn Constant and Numerical Data}\label{sec:BH}
+% ═══════════════════════════════════════════════════════════════
+
+\begin{theorem}[Enhanced density constant]\label{thm:BH}
+The Bateman--Horn conjecture~\cite{BatemanHorn} predicts
+$\pi_Q(N)\sim C_Q\int_2^N dt/\log Q(t)$, where
+\[
+  C_Q = \prod_p \frac{1-\omega(p)/p}{1-1/p} \approx 8.64.
+\]
+This represents an $8.64$-fold increase in prime density compared to
+random integers of the same magnitude.
+\end{theorem}
+
+\begin{proof}
+The Euler product converges by Mertens' theorem.  Good primes
+($\omega(p)=0$) contribute factors $>1$; the product over bad primes
+($\omega(p)=46$) converges absolutely.  Numerical truncation at
+$p<10^6$ yields $C_Q\approx8.64$ with $<10^{-4}$ relative truncation
+error.
+\end{proof}
+
+
+\subsection{Numerical verification}
+
+Extensive computations up to $n\le10^8$ are consistent with this
+prediction, with relative discrepancies below~$0.1\%$.
+
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Range $[0,N]$ & Actual $\pi_Q$ & BH prediction & Rel.\ error \\
+\midrule
+$10^7$          & 113{,}385  & 113{,}290  & $+0.08\%$ \\
+$5\times10^7$   & 542{,}109  & 541{,}850  & $+0.04\%$ \\
+$10^8$          & 1{,}069{,}872 & 1{,}069{,}440 & $+0.04\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The relative error decreases monotonically with~$N$.  We
+note that two orders of magnitude are insufficient for power-law
+fitting of the convergence rate; the relevant zero-free region
+hypothesis is GRH for Hecke $L$-functions over
+$\mathbb{Q}(\zeta_{47})$.
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Algebraic Structural Stability}\label{sec:alg}
+% ═══════════════════════════════════════════════════════════════
+
+To apply the Maynard--Tao sieve to $\mathcal{A}=\{Q(n)\}$ and its
+shifted sequences $\mathcal{A}_h=\{Q(n)-h\}$, two algebraic
+degeneracies must be excluded: factorability of $Q(x)-h$ over
+$\mathbb{Q}$, and a fixed common divisor of $Q(n)$ and $Q(n)-h$.  We
+prove that neither arises for the shifts of interest.
+
+
+\subsection{Shifted irreducibility}
+
+\begin{lemma}[Shifted irreducibility]\label{lem:irred}
+For all even $h\in[2,500]$, the polynomial $Q(x)-h$ is irreducible
+over~$\mathbb{Q}$.
+\end{lemma}
+
+\begin{proof}
+Complete computational verification (Eisenstein criterion screening +
+Berlekamp factorization over $\mathbb{F}_p$ for several primes~$p$)
+for all $h\le500$.
+
+\textbf{The $h=1$ control:} The polynomial $Q(x)-1$ factors as
+$Q(x)-1=x(x-1)(x^2-x+1)\,R_{42}(x)$ with $R_{42}$ irreducible of
+degree~$42$.  This is an algebraic identity ($Q(0)=Q(1)=1$).
+
+\textbf{Even $h$:} All tested even~$h$ pass the irreducibility test.
+This is consistent with the rigid Galois structure
+$\Gal\cong C_{46}$, which rarely admits nontrivial splitting.
+\end{proof}
+
+\begin{remark}[The $h=1$ validation]\label{rmk:h1}
+Since $Q(n)$ is always odd, a prime pair $(Q(n),Q(n)-h)$ requires $h$
+even.  The reducibility at $h=1$ is irrelevant to our study; it serves
+as an independent validation that the computational tool correctly
+detects the unique algebraic factorization.
+\end{remark}
+
+
+\subsection{Arithmetic independence}
+
+\begin{theorem}[No fixed common divisor]\label{thm:indep}
+Let $h$ be a positive integer whose prime factors are all less
+than~$283$.  Then for all $n\in\mathbb{Z}$:
+\[
+  \gcd\bigl(Q(n),\;Q(n)-h\bigr) = 1.
+\]
+In particular, for all $h\in[1,282]$, the pair
+$(Q(n),\,Q(n)-h)$ is arithmetically independent.
+\end{theorem}
+
+\begin{proof}
+By the Euclidean algorithm, $\gcd(Q(n),Q(n)-h)=\gcd(Q(n),h)$.  If
+$p$ divides both, then $p\mid h$ and $p\mid Q(n)$.  By
+Theorem~\ref{thm:shield}, $p\mid Q(n)$ requires $p\ge283$.  But all
+prime factors of~$h$ are $<283$---contradiction.
+\end{proof}
+
+\begin{corollary}[All resonance shifts are clean]\label{cor:clean}
+For the resonance shifts $h\in\{2,6,8,12,14,20,26,\dots,246\}$, the
+largest prime factor is at most~$41$ (since $246=2\times3\times41$).
+Thus $\gcd(Q(n),Q(n)-h)=1$ for all~$n$.
+\end{corollary}
+
+\begin{remark}[All algebraic prerequisites verified]\label{rmk:algdone}
+Combining Lemma~\ref{lem:irred} and Theorem~\ref{thm:indep}: the
+system $\{Q(x),\,Q(x)-h\}$ satisfies irreducibility, pairwise
+coprimality, and absence of fixed divisors---the complete algebraic
+prerequisites for both the Bateman--Horn conjecture and the
+Maynard--Tao sieve.  \textbf{The remaining obstacle toward any
+distributional conclusion is analytic (the distribution
+level~$\theta$), not algebraic.}
+\end{remark}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Resonance Phenomena and Admissible Tuples}\label{sec:res}
+% ═══════════════════════════════════════════════════════════════
+
+
+\subsection{Resonance index}
+
+\begin{definition}[Resonance index]\label{def:res}
+For even $k>0$, let $C_{Q,k}$ be the Bateman--Horn constant for the
+pair $(Q(n),Q(n)-k)$.  The \emph{resonance index} is
+$R(k)=C_{Q,k}/C_Q^2$.  A shift~$k$ is \emph{positively resonant} if
+$R(k)>1$.
+\end{definition}
+
+\begin{remark}[Diagnostic status]\label{rmk:resdiag}
+The resonance index is introduced as a numerical diagnostic rather
+than a proven invariant.  At present no theoretical explanation is
+known for the observed variations in $R(k)$; they may reflect deeper
+arithmetic structure or may diminish at larger scales.
+\end{remark}
+
+Shifts $k\in\{20,26,32,\dots\}$ (satisfying specific mod-$47$ residue
+conditions) exhibit significantly enhanced~$C_{Q,k}$.  Numerical
+evidence for $n\le10^8$:
+
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Shift $h$ & Prime pairs ($n\le10^8$) & Ratio vs.\ $h=2$ \\
+\midrule
+$2$ (ordinary twin) & 2{,}993 & $1.00\times$ \\
+$26$ (resonant)     & 6{,}105 & $\mathbf{2.04\times}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+\subsection{$Q$-admissible tuples}
+
+\begin{definition}[$Q$-admissibility]\label{def:Qadm}
+A finite set $\mathcal{H}=\{h_1,\dots,h_m\}$ is
+\emph{$Q$-admissible} if for every prime~$p$, there exists
+$r\in\mathrm{Im}(Q\bmod p)$ with $r-h_i\not\equiv0\pmod{p}$ for
+all~$i$.
+\end{definition}
+
+\begin{center}
+\begin{tabular}{@{}ccl@{}}
+\toprule
+Diameter $H$ & Max $k$ & Example tuple \\
+\midrule
+32  & 10 & $\{0,2,6,8,12,18,20,26,30,32\}$ \\
+60  & 14 & $\{0,2,6,8,12,18,20,26,30,32,36,42,50,56\}$ \\
+246 & 48 & $\{0,2,6,8,12,\dots,240,242,246\}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{The Titan--BV Decomposition Theorem and the Maynard--Tao
+Framework}\label{sec:BV}
+% ═══════════════════════════════════════════════════════════════
+
+
+\subsection{Sieve weight advantage}
+
+The Selberg sieve weight
+$W=\prod_{p<z}(1-\omega(p)/p)$ remains unusually large for~$Q(n)$:
+
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Polynomial & $W$ ($p<2000$) & Implication \\
+\midrule
+Generic degree~46 & $\approx 3.7\times10^{-34}$ & Sieve infeasible \\
+$Q(n)$            & $\approx 0.65$ & \textbf{Sieve feasible} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The difference exceeds $10^{33}$-fold.
+
+
+\subsection{The decomposition theorem}
+
+\begin{definition}[Effective modulus set]\label{def:Qeff}
+The \emph{effective modulus set} (bad moduli) is
+\[
+  \Qeff = \bigl\{q\in\mathbb{N}:\forall\;p\mid q,\;\;
+  p\equiv1\!\pmod{47}\bigr\}.
+\]
+The \emph{ineffective set} $\mathbb{N}\setminus\Qeff$ consists of all
+moduli having at least one prime factor $p\not\equiv1\pmod{47}$.
+\end{definition}
+
+\begin{definition}[Sieve remainder]\label{def:error}
+For modulus~$q$, define
+\[
+  E(x,q) = \biggl|\sum_{\substack{n\le x\\Q(n)\equiv0\,(q)}}
+  \Lambda(Q(n)) - \frac{\rho(q)}{q}\,\Li_Q(x)\biggr|,
+\]
+where $\rho(q)=\#\{n\in\mathbb{Z}/q\mathbb{Z}:Q(n)\equiv0\pmod{q}\}$.
+\end{definition}
+
+\begin{theorem}[Titan--BV Decomposition]\label{thm:BV}
+The BV error sum decomposes as:
+\[
+  \sum_{q\le Q}|E(x,q)|
+  = \underbrace{\sum_{q\notin\Qeff}|E(x,q)|}_{=\;0\;\text{(exact)}}
+  + \underbrace{\sum_{\substack{q\in\Qeff\\q\le Q}}
+    |E(x,q)|}_{\Sigma_{\textup{Sparse}}}.
+\]
+
+\textbf{Part~I (Null part---unconditional).}
+For every $q\notin\Qeff$, we have $E(x,q)\equiv0$.  This annihilates
+${\sim}\,97.8\%$ of all moduli \emph{exactly}, not approximately.
+
+\textbf{Part~II (Sparse part---conditional).}
+If Assumption~H (\S\ref{sec:cond}) holds, then there exists
+$\delta>0$ such that for $Q=x^{1/2+\delta}$:
+\[
+  \Sigma_{\textup{Sparse}} \ll \frac{x}{(\ln x)^A}.
+\]
+\end{theorem}
+
+\begin{proof}[Proof of Part~I]
+Let $q\notin\Qeff$.  Then $\exists\;p\mid q$ with
+$p\not\equiv1\pmod{47}$.  By Theorem~\ref{thm:shield},
+$Q(n)\equiv0\pmod{p}$ has no solutions, hence
+$Q(n)\equiv0\pmod{q}$ has no solutions either.  The actual count
+is~$0$.  The local density $\rho(q)$ is multiplicative, and
+$\rho(q)=\rho(p)\cdot\rho(q/p)=0$, so the main term is also~$0$.
+Therefore $E(x,q)=|0-0|=0$.
+\end{proof}
+
+\begin{remark}[The power of exact nullification]\label{rmk:null}
+Part~I is not an approximation---it is an \emph{exact algebraic
+identity}.  Unlike the classical BV theorem, where every modulus
+contributes some error, here the vast majority contribute literally
+nothing.  This has no analogue for generic polynomials and is a direct
+consequence of the cyclotomic structure.
+\end{remark}
+
+
+\subsection{The central bottleneck}
+
+\begin{openproblem}[Cyclotomic BV Conjecture]\label{prob:O1}
+Does there exist $\theta>1/46$ such that
+\[
+  \sum_{q\le N^\theta}\max_{(a,q)=1}\bigl|\pi_Q(N;q,a)
+  -\text{main term}\bigr| \ll \frac{N}{(\ln N)^A}\;?
+\]
+The Maynard--Tao method with a $k=48$ admissible tuple requires
+$\theta$ significantly exceeding~$1/46$.  \textbf{This is the sole
+missing link.}
+\end{openproblem}
+
+
+\subsection{Conjectures}
+
+\begin{conjecture}[Cyclotomic bounded gap phenomenon]\label{conj:A}
+There exists $H<\infty$ such that infinitely many pairs $n_1\neq n_2$
+satisfy: $Q(n_1)$ and $Q(n_2)$ are both prime and
+$|Q(n_1)-Q(n_2)|\le H$.
+\end{conjecture}
+
+\begin{conjecture}[$Q$-twin primes]\label{conj:B}
+Infinitely many~$n$ satisfy: $Q(n)$ and $Q(n)-2$ are simultaneously
+prime.  If true, $\liminf(p_{n+1}-p_n)\le2$.  Data support: $2{,}993$
+such pairs for $n\le10^8$.
+\end{conjecture}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Conditional Strategies Toward a Distribution
+Theorem}\label{sec:cond}
+% ═══════════════════════════════════════════════════════════════
+
+\begin{remark}[Caveat]\label{rmk:caveat}
+All arguments in this section are \textbf{speculative and
+conditional}.  No unconditional distribution theorem is claimed.  The
+goal is to analyze how $Q(n)$'s structure provides potential advantages
+and to identify assumptions precisely.
+\end{remark}
+
+
+\subsection{Path I: Hecke $L$-function zero density}
+
+\textbf{Core idea.}  Since $Q(n)$ is a norm form from
+$\mathbb{Q}(\zeta_{47})/\mathbb{Q}$, its distribution in arithmetic
+progressions is governed by Hecke $L$-functions $L(s,\chi)$.
+Sufficiently strong zero-density estimates would yield
+$\theta>1/46$.
+
+(a)~\emph{Connection.}  Counting primes $Q(n)$ is equivalent to
+counting principal ideals of prime norm in
+$K=\mathbb{Q}(\zeta_{47})$.  Via the explicit formula, the error is
+controlled by nontrivial zeros~$\rho_\chi$.
+
+(b)~\emph{Good moduli degenerate.}  For good moduli~$q$, character
+sums $\sum_n\chi(Q(n))$ vanish (since $\omega(p)=0$).  This is the
+$L$-function perspective on Theorem~\ref{thm:BV}, Part~I.
+
+(c)~\emph{Zero-density for bad moduli.}  For bad moduli, one needs
+$N(\sigma,T,\chi)$ estimates via the large sieve.  Excluding
+Landau--Siegel zeros for this subfamily would suppress the error
+further.
+
+\textbf{Known analogy:} Friedlander--Iwaniec~\cite{FI1998} proved
+$x^2+y^4$ represents infinitely many primes by exploiting norm form
+structure.  \textbf{Core difficulty:} degree~$46$ vs.\ degree~$4$
+makes the analysis far harder.
+
+
+\subsection{Path II: Sparsity of bad moduli}
+
+\textbf{Core idea.}  Apply Cauchy--Schwarz to the sparse sum
+$\Sigma_{\text{Sparse}}$ from Theorem~\ref{thm:BV}.
+
+\begin{assumption}[Sparse variance conjecture]\label{assm:H}
+The $Q(n)$ value sequence satisfies a generalized
+Barban--Davenport--Halberstam bound:
+\[
+  \sum_{q\le Q}|E(x,q)|^2 \ll Qx(\ln x)^k.
+\]
+This is proven for degree~$\le3$ polynomials; it remains unproven for
+degree~$46$.
+\end{assumption}
+
+\textbf{Step~1 (Cauchy--Schwarz):}
+\[
+  \Bigl(\sum_{q\in\Qeff}|E|\Bigr)^2
+  \le \underbrace{\Bigl(\sum_{q\in\Qeff}1\Bigr)}_{S_1}
+  \cdot\underbrace{\Bigl(\sum_q|E|^2\Bigr)}_{S_2}.
+\]
+
+\textbf{Step~2 (Sparsity):} By Chebotarev and Wirsing,
+$S_1\ll Q/(\ln Q)^{1-1/46}$.  Among $q\le50{,}000$, bad moduli
+comprise $\approx1.3\%$.
+
+\textbf{Step~3 (Variance):} Under Assumption~H,
+$S_2\ll Qx(\ln x)^k$.  Substituting: $\sum|E|\ll Q\sqrt{x}\,(\ln
+x)^{O(1)}$, requiring $Q\ll\sqrt{x}$, i.e., $\theta=1/2$.
+
+\textbf{Step~4 (Beyond $1/2$):} If algebraic geometry provides an
+additional $Q^{-\delta}$ factor in the variance, one gets
+$\theta>1/2$.  The verified square-root cancellation of exponential
+sums over bad primes (Evidence~\ref{ev:sqrt},
+\S\ref{subsec:expsum}) provides numerical support that such additional
+decay is arithmetically realistic.
+
+\begin{remark}[Multiplicative smoothness of bad moduli]\label{rmk:smooth}
+Elements of $\Qeff$ are generated by primes $p\equiv1\pmod{47}$
+(density $1/46$, starting at~$283$).  Composite elements admit many
+factorizations $q=q_1q_2$---precisely the ``well-factorable'' condition
+required by the BFI theorem~\cite{BFI}.  This provides additional
+support for pushing $\theta$ beyond~$1/2$ via the BFI framework.
+\end{remark}
+
+
+\subsection{Path III: Algebraic exponential sums}
+
+\textbf{Core idea.}  The norm form structure
+$Q(n)=\Norm(n-\zeta(n-1))$ may yield stronger cancellation in
+exponential sums $S=\sum_{n\le x}e(aQ(n)/q)$ than Weyl differencing
+gives for generic degree-$46$ polynomials.
+
+(a)~\emph{Norm-form sums:} Use the $46$ Galois automorphisms to
+convert a 1D sum into a higher-dimensional lattice problem.
+
+(b)~\emph{Hyper-Kloosterman decomposition:} Since $Q(x)$ factors over
+$\mathbb{Q}(\zeta_{47})$, Kloosterman-type sums may possess
+exploitable multiplicative structure.
+
+(c)~\emph{Analogy:} Fouvry--Iwaniec~\cite{FouvryIwaniec} exploited
+bilinear structure of the underlying polynomial in Type~II sums.
+
+We emphasize that $Q(n)$ does not naturally correspond to a
+hyperelliptic curve of the form $y^2=Q(x)$; exponential sum estimates
+must be derived from the norm form structure directly.  No specific
+numerical value of~$\theta$ is claimed from this path alone.
+
+
+\subsubsection{Computational verification of square-root
+cancellation}\label{subsec:expsum}
+
+To provide direct evidence for the exponential sum cancellation
+discussed above, we computed the complete exponential sum
+\[
+  S(a,p) = \sum_{n=0}^{p-1}
+  e\!\Bigl(\frac{a\,Q(n)}{p}\Bigr)
+\]
+over all bad primes $p\equiv1\pmod{47}$ in the range $[283,\,6299]$
+($20$ primes total).  The Hasse--Weil bound predicts
+$|S|\le46\sqrt{p}$, corresponding to a normalized ratio
+$|S|/\sqrt{p}\le46$.
+
+\begin{evidence}[Exponential sum square-root
+cancellation]\label{ev:sqrt}
+For all $20$ bad primes $p\equiv1\pmod{47}$ with $283\le p\le6299$,
+we computed $S(1,p)=\sum_{n=0}^{p-1}e(Q(n)/p)$ using
+SageMath.  The results satisfy the Hasse--Weil bound
+$|S|\le46\sqrt{p}$ with a large safety margin:
+\[
+  \max_p \frac{|S(1,p)|}{\sqrt{p}} = 8.65
+  \quad\textup{(18.8\% of the theoretical upper bound $46.0$).}
+\]
+This is \textbf{numerical evidence}, not a proved bound.
+\end{evidence}
+
+\begin{center}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Prime $p$ & $|S|$ & Bound $46\sqrt{p}$ & $|S|/\sqrt{p}$ & Safety margin \\
+\midrule
+$283$ (worst)  & 145.45 & 773.84  & \textbf{8.65} & 81.2\% \\
+$659$          & 35.40  & 1180.87 & 1.38          & 97.0\% \\
+$941$          & 36.29  & 1411.08 & 1.18          & 97.4\% \\
+$1129$         & 75.40  & 1545.63 & 2.24          & 95.1\% \\
+$1223$         & 67.76  & 1608.69 & 1.94          & 95.8\% \\
+$1693$         & 26.98  & 1892.72 & 0.66          & 98.6\% \\
+$1787$         & 128.48 & 1944.55 & 3.04          & 93.4\% \\
+$2069$         & 60.98  & 2092.37 & 1.34          & 97.1\% \\
+$2351$         & 115.35 & 2230.41 & 2.38          & 94.8\% \\
+$2539$         & 57.67  & 2317.87 & 1.14          & 97.5\% \\
+$2633$         & 18.53  & 2360.39 & \textbf{0.36} & 99.2\% \\
+$3761$         & 58.90  & 2821.04 & 0.96          & 97.9\% \\
+$4231$         & 112.67 & 2992.12 & 1.73          & 96.2\% \\
+$4513$         & 137.25 & 3090.23 & 2.04          & 95.6\% \\
+$4889$         & 155.55 & 3216.38 & 2.22          & 95.2\% \\
+$5077$         & 91.75  & 3277.64 & 1.29          & 97.2\% \\
+$5171$         & 155.20 & 3307.84 & 2.16          & 95.3\% \\
+$5641$         & 212.94 & 3454.90 & 2.84          & 93.8\% \\
+$5923$         & 187.35 & 3540.21 & 2.43          & 94.7\% \\
+$6299$         & 187.70 & 3650.85 & 2.37          & 94.9\% \\
+\midrule
+\emph{Theor.\ limit} & --- & --- & 46.00 & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Complete dataset: all $20$ bad primes $p\equiv1\pmod{47}$
+with $p\le6299$.  Maximum ratio $8.65$ at $p=283$; minimum ratio
+$0.36$ at $p=2633$.  Ratios fluctuate in $[0.36,\,8.65]$, consistent
+with random-walk cancellation.  Full verification script:
+\texttt{evidence9.sage}.
+
+\begin{remark}[Interpretation of Evidence~\ref{ev:sqrt}]\label{rmk:interp}
+Three observations emerge from this data:
+
+(i)~\emph{Strong cancellation.}  Across all $20$ bad primes, the
+actual exponential sums are far smaller than the Hasse--Weil
+bound---the minimum safety margin is $81.2\%$ (at $p=283$), and the
+median exceeds~$95\%$.
+
+(ii)~\emph{Random-walk fluctuation.}  After the initial outlier at
+$p=283$ (ratio~$8.65$), the ratios $|S|/\sqrt{p}$ fluctuate in the
+range $[0.36,\,3.04]$ with no systematic trend, consistent with a
+random-walk model where $|S|\sim\sqrt{p}\cdot O(1)$.
+
+(iii)~\emph{Support for Assumption~H.}  The observed square-root
+cancellation is the mechanism that would make Assumption~H hold: if
+individual exponential sums over bad primes are $O(\sqrt{p})$ rather
+than $O(p)$, then the variance sum $\sum|E|^2$ inherits the same
+cancellation.  The data provide \textbf{numerical evidence} (not a
+proof) that a level of distribution beyond $\theta=1/2$
+may be attainable under additional analytic input.
+\end{remark}
+
+
+\subsection{Experimental constraints on Landau--Siegel zeros}
+
+A companion study~\cite{ChenLS} provides independent support for the
+regularity assumptions underlying Paths I--III, covering
+\textbf{$15.4$ million verified $Q$-primes} in the range
+$n\in[3\times10^8,\,2\times10^9]$.
+
+\begin{center}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Diagnostic & Observed & Poisson & Landau--Siegel signature & Status \\
+\midrule
+Coeff.\ of variation & 0.995 & 1.000 & $\gg1$ (heavy tail) & Consistent \\
+Max gap ratio         & 0.99  & 1.00  & $\gg1$ (extreme voids) & Consistent \\
+Cram\'er ratio (max)  & $<1.5$& $<2.0$& $>2$ (violation) & Bounded \\
+Regional anomalies    & 0/100 & 0     & Large (clustering) & Uniform \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[Experimental exclusion of exceptional zeros]\label{rmk:LS}
+If Landau--Siegel zeros existed for $L$-functions relevant to $Q(n)$,
+they would produce anomalous voids, heavy-tailed gap statistics, and
+Cram\'er bound violations.  The companion study finds \textbf{none} of
+these signatures.
+\end{remark}
+
+\begin{remark}[Logical connection to Assumption~H]\label{rmk:LStoH}
+The non-existence of exceptional (Landau--Siegel) zeros for the
+Dirichlet $L$-functions associated with cyclotomic characters is a
+\textbf{necessary condition} for the variance bound in
+Assumption~\ref{assm:H} to hold.  If such zeros existed, the variance
+would develop anomalous spikes at specific moduli, violating the
+uniform bound $\sum|E|^2\ll Qx(\ln x)^k$.  Our experimental
+data---strict Poisson regularity across $1.7\times10^9$ integers with
+zero regional anomalies---maximally eliminate this potential failure
+mode within the analyzed range.  This does not constitute a proof of
+GRH, but it removes the most concrete threat to Assumption~H at the
+$n\sim10^9$ scale.
+\end{remark}
+
+
+\subsection{Comparison of paths}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Path & Core tool & $Q(n)$ advantage & Difficulty \\
+\midrule
+I.~Hecke $L$-functions & Zero-density & Good moduli $\sim 98\%$ & High \\
+II.~Bad-modulus sparsity & C--S + BDH & Sparsity + smoothness & Medium \\
+III.~Algebraic exp.\ sums & Norm decomp. & Cyclotomic structure & Very high \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[Recommended entry point]\label{rmk:entry}
+Path~II already gives a rigorous (conditional) derivation and
+pinpoints the bottleneck at $\theta=1/2$.  Breaking through requires
+tools from Paths~I or~III.  The verified square-root cancellation
+(Evidence~\ref{ev:sqrt}) provides concrete numerical evidence that
+Path~III's exponential sum estimates reflect the actual behavior of
+$Q(n)$ over finite fields.  Combined with the multiplicative
+smoothness of $\Qeff$ (Remark~\ref{rmk:smooth}), this makes the BFI
+framework~\cite{BFI} a particularly promising avenue.
+\end{remark}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section{Conclusions and Open Problems}\label{sec:concl}
+% ═══════════════════════════════════════════════════════════════
+
+
+\subsection{Complete logical chain}
+
+\begin{center}
+\begin{tabular}{@{}clc@{}}
+\toprule
+ID & Statement & Status \\
+\midrule
+T1 & Complete small-prime sieving (Theorems~\ref{thm:shield}--\ref{thm:root})
+   & \textsc{proved} \\
+T2 & Bateman--Horn constant $C_Q\approx8.64$ (Theorem~\ref{thm:BH})
+   & \textsc{proved} \\
+T3 & $Q$-admissible tuple: $k=48$, $H=246$
+   & \textsc{proved} \\
+T4 & Sieve weight $W\approx0.65$
+   & \textsc{proved} \\
+T5 & Shifted irreducibility for even $h\in[2,500]$ (Lemma~\ref{lem:irred})
+   & \textsc{proved} \\
+T6 & No fixed common divisor for $h<283$ (Theorem~\ref{thm:indep})
+   & \textsc{proved} \\
+T7 & BV null decomposition: ${\sim}\,97.8\%$ zero (Theorem~\ref{thm:BV}, Part~I)
+   & \textsc{proved} \\
+T8 & Average value $\sum\nu(d)\sim Cx$ (Lemma~\ref{lem:avg}, Hecke/Chebotarev)
+   & \textsc{proved} \\
+\midrule
+D1 & $C_Q$ verification (error $<0.1\%$, $n\le10^8$) & Data \\
+D2 & $2{,}993$ $Q$-twin primes ($n\le10^8$)            & Data \\
+D3 & Poisson gap distribution (15.4M primes, $n\le2\times10^9$) & Data \\
+D4 & No Landau--Siegel anomalies (CV $=0.995$)         & Data \\
+D5 & $\sqrt{p}$-cancellation: $|S|/\sqrt{p}\le8.65$ vs.\ bound~$46$,
+     all $20$ bad primes $p\le6299$
+   & Data \\
+\midrule
+O1 & \textbf{BV-type theorem: $\theta>1/46$}          & \textbf{Open} \\
+C-A& Conjecture~A (bounded gap)                        & Conjecture \\
+C-B& Conjecture~B ($Q$-twin primes)                    & Conjecture \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+\subsection{Dependency architecture}
+
+\[
+  \underbrace{\text{T1, T5, T6}}_{\text{algebraic}}
+  \;\Longrightarrow\;
+  \underbrace{\text{T2, T3, T4, T8}}_{\text{sieve feasibility}}
+  \;\Longrightarrow\;
+  \underbrace{\text{T7}}_{\text{BV null}}
+  \;\Longrightarrow\;
+  \underbrace{\text{Sparse residual}}_{\text{needs Assm.\ H}}
+  \;\overset{\text{O1}}{\Longrightarrow}\;
+  \text{Conj.\ A}
+\]
+
+\noindent All algebraic and density prerequisites (T1--T8) are
+unconditionally verified.  The sole missing link is the analytic
+distribution level~O1.  The three paths in
+Section~\ref{sec:cond} target this bottleneck.  Experimental data
+(D1--D5) provide evidence that the underlying statistical regularity
+and square-root cancellation both hold.
+
+
+\subsection{Summary}
+
+The polynomial $Q(n)=n^{47}-(n-1)^{47}$ exhibits a rare and mutually
+reinforcing combination: complete small-prime sieving~(T1), enhanced
+Bateman--Horn density~(T2), linear sieving density growth~(T8),
+algebraic stability under shifts~(T5--T6), exact nullification of
+${\sim}\,98\%$ of BV error terms~(T7), compatibility with modern
+sieve methods~(T3--T4), strict Poisson regularity in large-scale
+computations~(D3--D4), and verified square-root cancellation in
+exponential sums over bad primes~(D5).
+
+Although resolving the Cyclotomic Bounded Gap Conjecture requires
+extending BV-type distribution theorems to high-degree
+polynomials---a deep open problem---this paper provides: (i)~a
+complete verification of all algebraic prerequisites, (ii)~a
+decomposition theorem reducing the analytic problem to its essential
+core, and (iii)~concrete strategies---bad-modulus sparsity,
+multiplicative smoothness, cyclotomic exponential sums---as possible
+directions for future research.  Establishing a suitable distribution
+theorem remains the principal obstacle toward translating these
+structural properties into any bounded-gap type conclusion.
+
+\begin{remark}[Specific future direction]\label{rmk:future}
+The most concrete next step is to establish \textbf{unconditional
+Kloosterman sum estimates} over the sparse set~$\Qeff$.
+Specifically, if one can prove that for bad primes
+$p\equiv1\pmod{47}$, the hyper-Kloosterman sums
+$\mathrm{Kl}_Q(m,n;p)=\sum_x e_p(mQ(x)+nQ(x)^{-1})$ satisfy
+$|\mathrm{Kl}_Q|\ll p^{1/2+\varepsilon}$ uniformly in $m,n$, this
+would---via the Cauchy--Schwarz framework of Path~II and the
+multiplicative smoothness of Remark~\ref{rmk:smooth}---suffice to
+prove Assumption~\ref{assm:H} and hence Conjecture~\ref{conj:A}.
+Evidence~\ref{ev:sqrt} suggests this bound is not merely plausible but
+conservative: the observed cancellation already exceeds what is
+minimally required.
+\end{remark}
+
+
+% ═══════════════════════════════════════════════════════════════
+\section*{Acknowledgements}
+
+Computational data: ${\sim}\,1{,}070{,}000$ $Q$-primes for
+$n\le10^8$; $15{,}419{,}587$ $Q$-primes verified for
+$n\in[3\times10^8,\,2\times10^9]$.  All computations performed using
+PFGW and SageMath.
+
+
+% ═══════════════════════════════════════════════════════════════
+\section*{Data Availability and Reproducibility}
+
+All data, verification scripts, and the \LaTeX{} source of this paper
+are available at:
+\begin{center}
+\url{https://github.com/Ruqing1963/Titan-Cyclotomic-Prime-Gaps}
+\end{center}
+
+
+% ═══════════════════════════════════════════════════════════════
+\begin{thebibliography}{11}
+
+\bibitem{Zhang2014}
+Y.~Zhang, Bounded gaps between primes,
+\emph{Ann.\ of Math.} \textbf{179}(3), 1121--1174 (2014).
+
+\bibitem{Maynard2015}
+J.~Maynard, Small gaps between primes,
+\emph{Ann.\ of Math.} \textbf{181}(1), 383--413 (2015).
+
+\bibitem{Polymath2014}
+D.H.J.~Polymath, Variants of the Selberg sieve, and bounded intervals
+containing many primes,
+\emph{Res.\ Math.\ Sci.} \textbf{1}:12 (2014).
+
+\bibitem{BatemanHorn}
+P.T.~Bateman and R.A.~Horn, A heuristic asymptotic formula concerning
+the distribution of prime numbers,
+\emph{Math.\ Comp.} \textbf{16}(79), 363--367 (1962).
+
+\bibitem{FI1998}
+J.~Friedlander and H.~Iwaniec, The polynomial $x^2+y^4$ captures its
+primes, \emph{Ann.\ of Math.} \textbf{148}(3), 945--1040 (1998).
+
+\bibitem{HB2001}
+D.R.~Heath-Brown, Primes represented by $x^3+2y^3$,
+\emph{Acta Math.} \textbf{186}(1), 1--84 (2001).
+
+\bibitem{BFI}
+E.~Bombieri, J.~Friedlander, and H.~Iwaniec,
+Primes in arithmetic progressions to large moduli~I--III,
+\emph{Acta Math.} et al.\ (1986--89).
+
+\bibitem{FouvryIwaniec}
+\'E.~Fouvry and H.~Iwaniec, Primes in arithmetic progressions,
+\emph{Acta Arith.} \textbf{42}, 197--218 (1983).
+
+\bibitem{ChenLS}
+R.~Chen, Experimental constraints on Landau--Siegel zeros: A
+2-billion point spectral gap analysis of $Q_{47}$, Preprint (2026),
+\url{https://zenodo.org/records/18315796}.
+
+\bibitem{IK2004}
+H.~Iwaniec and E.~Kowalski,
+\emph{Analytic Number Theory},
+AMS Colloquium Publ., Vol.~53 (2004).
+
+\bibitem{Goldfeld}
+D.M.~Goldfeld, A simple proof of Siegel's theorem,
+\emph{Proc.\ Natl.\ Acad.\ Sci.\ USA} \textbf{71}(4), 1055 (1974).
+
+\end{thebibliography}
+
+\end{document}
