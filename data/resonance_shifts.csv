@@ -1,0 +1,7 @@
+# Resonance Shift Comparison
+# Q(n) = n^47 - (n-1)^47
+# Prime pairs (Q(n), Q(n)-h both prime) for n ≤ 10^8
+# Source: Table in Section 6.1
+Shift_h,Type,Prime_Pairs_n_le_1e8,Ratio_vs_h2
+2,ordinary twin,2993,1.00
+26,resonant,6105,2.04

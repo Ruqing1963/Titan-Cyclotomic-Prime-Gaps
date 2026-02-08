@@ -1,0 +1,7 @@
+# Bateman-Horn Prediction vs Actual Prime Counts
+# Q(n) = n^47 - (n-1)^47, C_Q ≈ 8.64
+# Source: Table in Section 4 of the paper
+N,Actual_pi_Q,BH_Prediction,Relative_Error_Percent
+10000000,113385,113290,+0.08
+50000000,542109,541850,+0.04
+100000000,1069872,1069440,+0.04

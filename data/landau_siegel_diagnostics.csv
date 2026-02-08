@@ -1,0 +1,9 @@
+# Experimental Constraints on Landau-Siegel Zeros
+# Q(n) = n^47 - (n-1)^47
+# 15.4 million Q-primes verified for n in [3e8, 2e9]
+# Source: Table in Section 8.4
+Diagnostic,Observed,Poisson_Expected,LS_Zero_Signature,Status
+Coefficient of variation,0.995,1.000,>>1 (heavy tail),Consistent
+Max gap ratio,0.99,1.00,>>1 (extreme voids),Consistent
+Cramer ratio (max),<1.5,<2.0,>2 (violation),Bounded
+Regional anomalies,0/100,0,Large (clustering),Uniform
